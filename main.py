@@ -1,4 +1,4 @@
-import sys
+from __future__ import barry_as_FLUFL
 import pyodbc
 from random import randint
 import pytz
@@ -31,27 +31,76 @@ def validacao_login(login, senha):
 
 
 class BancoPoo:
-    
-    @staticmethod      
-           
-    def _gerar_numero_conta():  
-        '''
-        Função que gera um número de 6 digitos, sendo que cada digito pode ser de 1 até 9.
-        
-        Não exige nenhum parâmetro.
-        
-        Retorna uma variavel com um número de 6 digitos aleatórios cada vez que é executada.
-        
-        '''
-        num_conta= ''
 
-        for i in range(5):
-            num_conta += str(randint(1,9))
+    
+    
+    def __init__(self, Agencia):
+        cursor.execute(f"SELECT Nome FROM bancodados WHERE Agencia = '{Agencia}'")
+        nome_tab = cursor.fetchall()
+        self.nome = nome_tab[0][0]
         
-        return num_conta
+        cursor.execute(f"SELECT Cpf FROM bancodados WHERE Agencia = '{Agencia}'")
+        cpf_tab = cursor.fetchall()
+        self.cpf = cpf_tab[0][0]
+        
+        
+        cursor.execute(f"SELECT Agencia FROM bancodados WHERE Agencia = '{Agencia}'")
+        agc_tab = cursor.fetchall()
+        self.agencia = agc_tab[0][0]
+        
+        
+        cursor.execute(f"SELECT Numconta FROM bancodados WHERE Agencia = '{Agencia}'")
+        num_tab = cursor.fetchall()
+        self.num_conta = num_tab[0][0]
+        
+        
+        cursor.execute(f"SELECT Saldo FROM bancodados WHERE Agencia = '{Agencia}'")
+        saldo_tab = cursor.fetchall()
+        self.saldo = saldo_tab[0][0]
+        
+        
+        cursor.execute(f"SELECT limite FROM bancodados WHERE Agencia = '{Agencia}'")
+        lim_tab = cursor.fetchall()
+        self.limite = lim_tab[0][0]
     
-    
-    def _data_hora():
+        
+        cursor.execute(f"SELECT Senha FROM bancodados WHERE Agencia = '{Agencia}'")
+        pass_tab = cursor.fetchall()
+        self.senha = pass_tab[0][0]
+        
+
+        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Agencia = '{Agencia}'")
+        valid_tab = cursor.fetchall()
+        self.validacao = valid_tab[0][0]
+        
+        
+        #cursor.execute(f"INSERT INTO bancodados (Nome, Cpf, Agencia, Numconta, Saldo, limite, Senha, Validacao) VALUES ('{self.nome}', '{self.cpf}', '{self.agencia}', '{self.num_conta}', {self._saldo}, {self._limite}, '{self._senha}', {self.validacao} )")
+        
+        #cursor.commit()
+        
+          
+
+        
+def _gerar_numero_conta():  
+    '''
+    Função que gera um número de 6 digitos, sendo que cada digito pode ser de 1 até 9.
+        
+    Não exige nenhum parâmetro.
+        
+    Retorna uma variavel com um número de 6 digitos aleatórios cada vez que é executada.
+        
+    '''
+    num_conta= ''
+
+    for i in range(5):
+        num_conta += str(randint(1,9))
+        
+    return num_conta  
+
+
+
+
+def _data_hora():
         '''
         Função que entrega de forma formatada o horário atual, levando em conta o fuso horário de Braisilia - DF (dias/meses/anos  horas:minutos:segundos)
         
@@ -65,35 +114,7 @@ class BancoPoo:
         
         return horario_brazil.strftime('%d/%m/%Y  %H:%M:%S')
     
-    
-    
-    def __init__(self, nome, cpf, senha):
-        self.nome = nome
-        self.cpf = cpf
-        self.agencia = str(self._gerar_numero_conta())
-        self.num_conta = str(self._gerar_numero_conta())
-        self._saldo = 0
-        self._limite = 5000
-        self._senha = senha
-        self.validacao = 0
-        
-        cursor.execute(f"INSERT INTO bancodados (Nome, Cpf, Agencia, Numconta, Saldo, limite, Senha, Validacao) VALUES ('{self.nome}', '{self.cpf}', '{self.agencia}', '{self.num_conta}', {self._saldo}, {self._limite}, '{self._senha}', {self.validacao} )")
-        
-        cursor.commit()
-        
-        
-    def Saque(self, cpf, senha, valor):
-        if self._limite > (self._saldo - valor):
-            self._saldo -= valor
-            transacoes = f'SACADO R$ {valor:,.2f}, O saldo é de R$ {self._saldo:,.2f}, {self._data_hora()}'
-            
-            cursor.execute(f"INSERT INTO Extrato (Conta, Transacao) VALUES ('{self.num_conta}', '{transacoes}')")
-            
-        else:
-            print(f'Você não pode sacar mais que seu limite! Seu limite é de R$ {self._limite:,.2f}')
-        
-        
-            
+             
 
 
 while True:
@@ -111,10 +132,14 @@ while True:
     print('|PRESSIONE 3 PARA CONSULTAR SALDO              |')
 
     print('|PRESSIONE 4 P/ CONSULTA DE DADOS DA CONTA     |')
-    
-    print('|PRESSIONE 5 PARA TRANSFERÊNCIAS               |')
+     
+    print('|PRESSIONE 5 PARA SAQUES                       |')
 
-    print('|PRESSIONE 6 PARA DEPÓSITOS                    |')
+    print('|PRESSIONE 6 PARA DEPÓSITO                     |')
+    
+    print('|PRESSIONE 7 PARA TRANSFERÊNCIAS               |')
+    
+    print('|PRESSIONE 8 PARA EXIBIR EXTRATO DA CONTA      |')
 
     print('|PRESSIONE 0 PARA SAIR DO SISTEMA              |')
 
@@ -124,13 +149,21 @@ while True:
     opc = int(input('>> '))
     
     if opc == 0:  
-        login = input('Para sair do Sistema informe seu CPF: ') 
-        print('Saindo do sistema!')             
-        cursor.execute(f"UPDATE bancodados SET Validacao = 0  WHERE Cpf = '{login}'")
-        cursor.commit()
-        cursor.close()
-        conexao.close()
-        break
+        login = input('Para sair do Sistema informe seu CPF: ')    
+        
+        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Cpf = '{login}'")
+        valid_acesso = cursor.fetchall()
+            
+        if valid_acesso == []:
+            print('\nCpf Incorreto.') 
+        
+        else:
+            print('\nSaindo do sistema!\n')         
+            cursor.execute(f"UPDATE bancodados SET Validacao = 0  WHERE Cpf = '{login}'")
+            cursor.commit()
+            cursor.close()
+            conexao.close()
+            break
     
     if opc == 1:
             
@@ -140,11 +173,11 @@ while True:
             cursor.execute(f"SELECT Validacao FROM bancodados WHERE Cpf = '{login}'")
             valid_acesso = cursor.fetchall()
             
-            if valid_acesso[0][0] == 1:
-                print('\nVocê já está logado')    
-            
-            elif valid_acesso == []:
-                print('\nCpf ou Senha Incorretos. Confira os dados ou faça Login!')
+            if valid_acesso == [] :
+                print('\nCpf ou Senha Incorretos. Confira os dados!')    
+                
+            elif valid_acesso[0][0] == 1:
+                print('\nVocê já está logado!')
             
             else:  
                 validacao_login(login,senha)
@@ -165,13 +198,16 @@ while True:
     
     if opc == 2:
         
-        login = input('Digite seu CPF (com pontos e traço): ')
+        login = input('Digite seu CPF (com pontos e traço) PARA CADASTRAR UM NOVO CLIENTE: ')
         senha = input('Digite sua Senha (8 Digítos): ')
         
-        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Cpf = '{login}'")
+        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Cpf = '{login}' AND Senha = '{senha}'")
         valid_acesso = cursor.fetchall()
             
-        if valid_acesso[0][0] == 0:
+        if valid_acesso == []:
+            print('\nCpf ou Senha Incorretos. Confira os dados ou faça Login!') 
+            
+        elif valid_acesso[0][0] == 0:
             print('\nCpf ou Senha Incorretos. Confira os dados ou faça Login!') 
             
         
@@ -184,23 +220,32 @@ while True:
                     print('Somente Letras!')
                             
                 else: 
-                    cpf = input('Digite seu CPF (com pontos e traço): ')
+                    cpf = input('Digite um CPF (com pontos e traço): ')
                     if not '-' in cpf or not '.' in cpf:
                         print('O CPF deve ter "-" e "." !')
+                        break
                         
                     cursor.execute(f"SELECT Cpf FROM bancodados WHERE Cpf = '{cpf}'")
                     cpf_validacao = cursor.fetchall()
                     
                     if cpf_validacao == []:
                         
-                        senha_creat = input('Digite sua Senha (8 Digítos): ')
+                        senha_creat = input('Digite uma Senha (8 Digítos): ')
                                 
                         if len(senha_creat) < 8 or len(senha_creat) > 8:
                             print('A Senha deve conter 8 dígitos')
                                     
                         else:
-                            conta = BancoPoo(nome, cpf, senha_creat)
-                            print('Cadastro efetuado com sucesso!')
+                            #conta = BancoPoo(nome, cpf, senha_creat)
+                            saldo = 0
+                            limite = -1000
+                            validacao = 0
+                            
+                            cursor.execute(f"INSERT INTO bancodados (Nome, Cpf, Agencia, Numconta, Saldo, limite, Senha, Validacao) VALUES ('{nome}', '{cpf}', '{str(_gerar_numero_conta())}', '{str(_gerar_numero_conta())}', {saldo}, {limite}, '{senha_creat}', {validacao} )")
+        
+                            cursor.commit()
+                            
+                            print('\nCadastro efetuado com sucesso!\n')
                             break
                             
                     elif cpf_validacao[0][0] == cpf:
@@ -209,33 +254,40 @@ while True:
                         
     
     if opc == 3:
-        login = input('Digite seu CPF (com pontos e traço): ')
+        login = input('Digite seu CPF (com pontos e traço) PARA EXIBIR SEU SALDO: ')
         senha = input('Digite sua Senha (8 Digítos): ')
         
-        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Cpf = '{login}'")
+        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Cpf = '{login}' AND Senha = '{senha}'")
         valid_acesso = cursor.fetchall()
+         
+        if valid_acesso == []:
+            print('\nCpf ou Senha Incorretos. Confira os dados ou faça Login!\n')  
             
-        if valid_acesso[0][0] == 0:
-            print('\nVocê Precisa fazer LOGIN!\n')
+        elif valid_acesso[0][0] == 0:
+            print('\nCpf ou Senha Incorretos. Confira os dados ou faça Login!') 
     
     
         else:
             cursor.execute(f"SELECT Saldo FROM bancodados  WHERE Cpf = '{login}'")
             saldo = cursor.fetchall()
             
-            print(f'Seu saldo é de R$ {saldo[0][0]:,.2f}')
+            print(f'\nSeu saldo é de R$ {saldo[0][0]:,.2f}\n')
             
 
     
      
     if opc == 4:
-        login = input('Digite seu CPF (com pontos e traço): ')
+        login = input('Digite seu CPF (com pontos e traço) PARA EXIBIR OS DADOS DA SUA CONTA: ')
         senha = input('Digite sua Senha (8 Digítos): ')
         
-        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Cpf = '{login}'")
+        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Cpf = '{login}' AND Senha = '{senha}'")
         valid_acesso = cursor.fetchall()
-        if valid_acesso[0][0] == 0:
-            print('\nVocê Precisa fazer LOGIN!\n')
+        
+        if valid_acesso == []:
+            print('\nCpf ou Senha Incorretos. Confira os dados ou faça Login!\n')  
+            
+        elif valid_acesso[0][0] == 0:
+            print('\nCpf ou Senha Incorretos. Confira os dados ou faça Login!') 
     
     
         else:
@@ -248,6 +300,170 @@ while True:
             print(f'Numero da Conta = {dados_conta[0][2]}')
             print(f'Senha = {dados_conta[0][3]}')
     
+    
+    if opc == 5:
+        agc = input('Digite o Número da sua Agencia PARA SACAR VALORES DA SUA CONTA: ')
+        numconta = input('Digite o Número da sua Conta: ')
+        
+        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Agencia = '{agc}' AND Numconta = '{numconta}'")
+        valid_acesso = cursor.fetchall()
+        
+        if valid_acesso == []:
+            print('\nAgencia ou Número da conta Incorretos. Confira os dados ou faça Login!\n')  
+            
+        elif valid_acesso[0][0] == 0:
+            print('\nAgencia ou Número da conta Incorretos. Confira os dados ou faça Login!') 
+    
+    
+        else:
+            valor = int(input('Digite o valor a ser Sacado da sua Conta: '))
+            
+            cliente = BancoPoo(agc)
+            
+            if (cliente.saldo - valor) > cliente.limite:
+                cliente.saldo -= valor
+                
+            
+                print(f'\n Você Sacou R$ {valor:,.2f} da sua conta bancária!')
+                
+                transacoes = (f'SACADO R$ {valor:,.2f}, SALDO: R$ {cliente.saldo:,.2f} -> {_data_hora()}')
+            
+                cursor.execute(f"INSERT INTO Extrato (Conta, Transacao) VALUES ('{cliente.num_conta}', '{transacoes}')")
+                cursor.commit()
+                
+                cursor.execute(f"UPDATE bancodados SET Saldo = {cliente.saldo} WHERE Agencia =  '{agc}'")
+                cursor.commit()
+            
+            else:
+                print('\nVocê não tem Saldo o suficiente para o Saque!')   
+    
+    
+                
+    if opc == 6:
+        agc = input('Digite o Número da sua Agencia PARA DEPOSITAR VALORES NA SUA CONTA: ')
+        numconta = input('Digite o Número da sua Conta: ')
+        
+        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Agencia = '{agc}' AND Numconta = '{numconta}'")
+        valid_acesso = cursor.fetchall()
+        
+        if valid_acesso == []:
+            print('\nAgencia ou Número da conta Incorretos. Confira os dados ou faça Login!\n')  
+            
+        elif valid_acesso[0][0] == 0:
+            print('\nAgencia ou Número da conta Incorretos. Confira os dados ou faça Login!') 
+    
+    
+        else:
+            valor = int(input('Digite o valor a ser Depositado na sua Conta: '))
+            
+            cliente = BancoPoo(agc)
+            
+            cliente.saldo += valor
+                
+            
+            print(f'\n Você Depositou R$ {valor:,.2f} na sua conta bancária!')
+                
+            transacoes = (f'DEPOSITADO R$ {valor:,.2f}, SALDO: R$ {cliente.saldo:,.2f} -> {_data_hora()}')
+            
+            cursor.execute(f"INSERT INTO Extrato (Conta, Transacao) VALUES ('{cliente.num_conta}', '{transacoes}')")
+            cursor.commit()
+                
+            cursor.execute(f"UPDATE bancodados SET Saldo = {cliente.saldo} WHERE Agencia =  '{agc}'")
+            cursor.commit()
+            
+    
+    
+            
+    if opc == 7:
+        
+        while True:
+            agc1 = input('Digite o Número da sua Agencia PARA TRANSFERIR VALORES DA SUA CONTA: ')
+            numconta1 = input('Digite o Número da sua Conta: ')
+            
+            cursor.execute(f"SELECT Validacao FROM bancodados WHERE Agencia = '{agc1}' AND Numconta = '{numconta1}'")
+            valid_acesso = cursor.fetchall()
+            
+            if valid_acesso == []:
+                print('\nAgencia ou Número da conta Incorretos. Confira os dados ou faça Login!\n')
+                break
+                
+            elif valid_acesso[0][0] == 0:
+                print('\nAgencia ou Número da conta Incorretos. Confira os dados ou faça Login!')
+                break
+                
+            
+            else:  
+                agc2 = input('Digite o Número da Agencia QUE IRA RECEBER O VALOR: ')
+                numconta2 = input('Digite o Número da Conta QUE IRA RECEBER O VALOR: ')
+                
+                cursor.execute(f"SELECT Validacao FROM bancodados WHERE Agencia = '{agc2}' AND Numconta = '{numconta2}'")
+                valid_acesso = cursor.fetchall()
+                
+                if valid_acesso == []:
+                    print('\nAgencia ou Número da conta Não Existem.\n')
+                    break                                        
+            
+                else:
+                    valor = int(input('Digite o valor a ser Transferido da sua Conta: '))
+                    
+                    cliente = BancoPoo(agc1)
+                    cliente2 = BancoPoo(agc2)
+                    
+                    
+                    if (cliente.saldo - valor) > cliente.limite:
+                        cliente.saldo -= valor
+                        cliente2.saldo += valor
+                        
+                        print(f'\n Você Transferiu R$ {valor:,.2f}! para {cliente2.nome}.\n')
+                        
+                        transacoes = (f'TRANSFERIDO R$ {valor:,.2f} para {cliente2.nome}, SALDO: R$ {cliente.saldo:,.2f} -> {_data_hora()}')
+                        transacoes2 = (f'RECEB.TRANSFER R$ {valor:,.2f} de {cliente.nome}, SALDO: R$ {cliente2.saldo:,.2f} -> {_data_hora()}')
+                    
+                        cursor.execute(f"INSERT INTO Extrato (Conta, Transacao) VALUES ('{cliente.num_conta}', '{transacoes}')")
+                        cursor.commit()
+                        
+                        cursor.execute(f"INSERT INTO Extrato (Conta, Transacao) VALUES ('{cliente2.num_conta}', '{transacoes2}')")
+                        cursor.commit()
+                        
+                        cursor.execute(f"UPDATE bancodados SET Saldo = {cliente.saldo} WHERE Agencia =  '{agc1}'")
+                        cursor.commit()
+                        
+                        cursor.execute(f"UPDATE bancodados SET Saldo = {cliente2.saldo} WHERE Agencia =  '{agc2}'")
+                        cursor.commit()
+                        break
+                    
+                    else:
+                        print('Você não tem Saldo o Suficiente para fazer a transferência!')
+                        break
+                    
+    if opc == 8:
+        agc = input('Digite o Número da sua Agencia PARA EXIBIR O EXTRATO DA SUA CONTA: ')
+        numconta = input('Digite o Número da sua Conta: ')
+        
+        cursor.execute(f"SELECT Validacao FROM bancodados WHERE Agencia = '{agc}' AND Numconta = '{numconta}'")
+        valid_acesso = cursor.fetchall()
+        
+        if valid_acesso == []:
+            print('\nAgencia ou Número da conta Incorretos. Confira os dados ou faça Login!\n')  
+            
+        elif valid_acesso[0][0] == 0:
+            print('\nAgencia ou Número da conta Incorretos. Confira os dados ou faça Login!') 
+    
+    
+        else:
+            cursor.execute(f"SELECT Conta, Transacao FROM Extrato WHERE Conta = '{numconta}'")
+            extrato = cursor.fetchall()
+            
+            
+            for linha in extrato:
+                print(f'\n{linha[1]}')
+                    
+                    
+            
+            
+                   
+            
+                   
     
         
         
