@@ -1,5 +1,11 @@
 # Sistema Bancário Python - POO (Programação Orientada a Objetos)
 
+Bibliotecas Usadas:
+- pyodbc
+- randint from random
+- datetime
+- pytz
+
 Funcionalidades até o exato momento:
 
 Integração com Banco de Dados sqlite3
@@ -16,13 +22,32 @@ Integração com Banco de Dados sqlite3
 * Limite para saque e depóstio (em testes)
 
 ------------------------------------------------
+O Projeto é um Sistema Bancário, onde o usuário pode:
 
-Funcionalidades Desejadas:
+- Fazer Depositos
+- Fazer Saques
+- Fazer Transferências
+- Exibir Extrato Bancário
+- Exibir Saldo Atual
+- Exibir Dados da conta
 
-* Sacar, Depositar e Transferir para outras contas (Tudo sendo registrado em uma espécie de Extato que é armazenado em outra tabela do Banco de Dados)
+Além disso O Sistema conta com certas funcionalidades como:
+
+- Integração total com Banco de Dados
+- Logica de "cheque especial"
+- Cadastro com regras próprias do sistema
+
+Esta é uma versão inicial do Projeto, Pretendo ainda implementar uma interface e outras melhorias.
 
 
 
+-------------------------------------------------
 
- 
+Para testa-lo:
+
+Ter as Mesmas Bibliotecas Usadas nesse projeto.
+
+Driver Sqlite3 Instalado
+
+IDE python para rodar o código
 
